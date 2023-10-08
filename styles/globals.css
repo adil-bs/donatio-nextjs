@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media (prefers-color-scheme: dark) {
+  body {
+    color: rgb(255, 255, 255);
+    background-color: black;
+  }
+}
+
+body {
+  color: rgb(0, 0, 0);
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(244, 231, 231)
+    )
+    rgb(192, 211, 215) no-repeat;
+    height: 100vh;
+}
+
+.violet_gradient {
+  background:linear-gradient(
+    to right, 
+    rgb(82, 25, 126),
+    rgb(147, 105, 196)
+  );
+}
+.violet_gradient_hover:hover{
+  background:linear-gradient(
+    to right, 
+    rgb(61, 0, 108),
+    rgb(167, 144, 193)
+  );
+}
+.clicked::after{
+  content: '';
+  top: 0;
+  left: 0;
+  height: 100%;
+  width:100%;
+  position: absolute;
+  border: 2px solid black;
+  border-radius:inherit;
+}
+.clicked:active::after{
+  top: -0.3em;
+  left: -0.3em;
+  height: calc(100% + 0.6em);
+  width:calc(100% + 0.6em);
+  filter: brightness(0.5);
+}
