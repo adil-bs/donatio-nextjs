@@ -2,32 +2,21 @@
 
 import Dialog from "/components/dialog";
 import FloatLabel from "/components/floatlabel";
-import getStripe from "/components/getStripe";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import Link from "next/link";
 import { useState } from "react";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY);
 
 export default function Home() {
   const [isClicked, setIsClicked] = useState(false)
   const [amount, setAmount] = useState(0)
-
+  
   const handleSubmit= async (e) =>{
-    try{
-      e.preventDefault()
-      const stripe= await getStripe()
-      let checkoutSession =await fetch('/api/checkout-session',{
-        method:"POST",
-        body:JSON.stringify(amount),
-        headers: {"Content-Type":"applicaton/json"}
-      })
-      console.log(checkoutSession);
-
-      checkoutSession = await checkoutSession.json()
-      await stripe.redirectToCheckout({sessionId:checkoutSession.id})
-    }
-    catch(err) {
-      console.error("submit error",err.message);
-    }
+    
   }
+
   return (
     <main className="px-7 flex flex-col justify-center items-center text-center h-full" >
 
@@ -68,7 +57,7 @@ export default function Home() {
               autoComplete:"off",
             }}
           />  
-          {/* <Link href="/payment-options"> */}
+          <Link href={"/payment-options?amount="+amount} >
             <button  
               disabled={!amount}
               className={`mt-5 py-1 px-3 text-white rounded-md violet_gradient relative  
@@ -77,7 +66,7 @@ export default function Home() {
             >
               Pay
             </button>
-          {/* </Link> */}
+          </Link>
         
         </form>  
       
