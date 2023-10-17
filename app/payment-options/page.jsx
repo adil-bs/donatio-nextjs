@@ -1,39 +1,37 @@
 'use client'
 import React from 'react'
 import {useSearchParams} from 'next/navigation'
-import { fetchReq } from '@/components/utility'
+import PaymentMode from '@/components/paymentMode'
+import CardForm from '@/components/cardForm'
 
 const PaymentOptionPage = () => {
   const searchParams = useSearchParams()
-  const [clientSecret, setClientSecret] = React.useState("");
 
   React.useEffect(() => {
 
-    // fetch("/api/paymentintent", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ amount : searchParams.get("amount") }),
-    // })
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     setClientSecret(data.clientSecret)
-    //     console.log(clientSecret);
-    //   })
-    async function getClientSecret(){
-      const data = await fetchReq("/api/paymentintent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount : searchParams.get("amount") }),
-      }) 
-      setClientSecret(data)
-    }
-    getClientSecret()
-    console.log(clientSecret);
+    
 
   }, []);
 
   return (
-    <div>OptionPage</div>
+    <main className='p-10'>
+      <h2 className='text-4xl font-semibold text-center'>Select Payment Mode</h2>
+      
+      <div className='grid justify-items-center mt-10 space-y-5'>
+        <PaymentMode mode="Pay via UPI"  list={[]}> 
+          <div/>
+        </PaymentMode>
+
+        <PaymentMode mode="Pay via cards" list={[]}> 
+          <CardForm/>
+        </PaymentMode>  
+
+        <PaymentMode mode="Net banking"  list={[]}>
+          <div/>
+        </PaymentMode>       
+      </div>
+
+    </main>
   )
 }
 

@@ -5,7 +5,7 @@ import React from 'react'
 const ErrorPage = ({error,reset}) => {
     console.log(error);
   return (
-    <div className='grid grid-flow-col place-content-center'>
+    <div className='grid grid-flow-col place-content-center h-screen'>
         <p className='text-lg font-bold'>Something went wrong :( </p>
 
         <div className='flex space-x-3 items-center'>

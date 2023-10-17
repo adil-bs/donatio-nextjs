@@ -1,20 +1,49 @@
 'use client'
 
+import { fetchReq } from "@/components/utility";
 import Dialog from "/components/dialog";
 import FloatLabel from "/components/floatlabel";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
 import Link from "next/link";
 import { useState } from "react";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY);
-
 export default function Home() {
   const [isClicked, setIsClicked] = useState(false)
-  const [amount, setAmount] = useState(0)
-  
+  const [amount, setAmount] = useState(undefined)
+
   const handleSubmit= async (e) =>{
+    e.preventDefault()
+
+    const resData = await fetchReq("/api/orders",{
+      method:"POST",
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(amount),
+    })
     
+    const rzp = new Razorpay({
+      key: process.env.RZP_PRIVATE_KEY,
+      amount: resData.amount,
+      currency: resData.currency,
+      order_id: resData.id,
+      name:"donatio",
+
+      handler: async (res) => {
+        try {
+          const paymentVerificationStatus = await fetchReq("/api/verify",{
+            method:"POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(res),
+          })
+          console.log(paymentVerificationStatus);
+        } catch (error) {
+          console.log(error);
+        }
+      },
+
+      theme: { color:"#5b21b6"}
+
+    })
+
+    rzp.open()
   }
 
   return (
@@ -57,7 +86,7 @@ export default function Home() {
               autoComplete:"off",
             }}
           />  
-          <Link href={"/payment-options?amount="+amount} >
+          {/* <Link href={"/payment-options?amount="+amount} > */}
             <button  
               disabled={!amount}
               className={`mt-5 py-1 px-3 text-white rounded-md violet_gradient relative  
@@ -66,11 +95,12 @@ export default function Home() {
             >
               Pay
             </button>
-          </Link>
+          {/* </Link> */}
         
         </form>  
       
       </Dialog> }     
+      
     </main>
   )
 }
