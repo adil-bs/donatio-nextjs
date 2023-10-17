@@ -16,19 +16,20 @@ export async function POST(req) {
       //  partial_payment: bool (for emi)
     };
 
-    const createOrder = () => {
-      return new Promise((resolve, reject) => {
-        rzp.orders.create(options, (err, order) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(order);
-          }
-        });
-      });
-    };
-    const order = await createOrder();
-    
+    // const createOrder = () => {
+    //   return new Promise((resolve, reject) => {
+    //     rzp.orders.create(options, (err, order) => {
+    //       if (err) {
+    //         reject(err);
+    //       } else {
+    //         resolve(order);
+    //       }
+    //     });
+    //   });
+    // };
+    // const order = await createOrder();
+    const order = await rzp.orders.create(options)
+
     return new Response(JSON.stringify(order), {
       status: 200, headers: { 'Content-Type': 'application/json' },
     });

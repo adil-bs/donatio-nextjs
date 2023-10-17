@@ -1,6 +1,6 @@
 'use client'
 
-import { fetchReq } from "@/components/utility";
+import { fetchReq, loadScript } from "@/components/utility";
 import Dialog from "/components/dialog";
 import FloatLabel from "/components/floatlabel";
 import Link from "next/link";
@@ -19,12 +19,14 @@ export default function Home() {
       body: JSON.stringify(amount),
     })
     
+    const loadRazorpayScript = await loadScript("https://checkout.razorpay.com/v1/checkout.js")
+
     const rzp = new Razorpay({
-      key: process.env.RZP_PRIVATE_KEY,
+      key: process.env.NEXT_PUBLIC_RZP_KEY,
       amount: resData.amount,
       currency: resData.currency,
       order_id: resData.id,
-      name:"donatio",
+      name:"Donate to Greater Good",
 
       handler: async (res) => {
         try {
