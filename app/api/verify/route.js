@@ -8,12 +8,12 @@ export async function POST(req) {
           .update(signature.toString())
           .digest("hex")
 
-        if (expectedSignature === signature) {
-            return new Response("Payment Verifed Successfully", {
-                status: 500, headers: { 'Content-Type': 'application/json' },
+        if (expectedSignature === razorpay_signature) {
+            return new Response(JSON.stringify({ message: "Payment Verified" }), {
+                status: 200, headers: { 'Content-Type': 'application/json' },
             })
         } else {
-            return new Response("Payment Not Verifed", {
+            return new Response(JSON.stringify({ message: "Payment Not Verified" }), {
                 status: 400, headers: { 'Content-Type': 'application/json' },
             })
         }
@@ -21,7 +21,7 @@ export async function POST(req) {
     
     catch (error) {
         console.log("server side",error.message);
-        return new Response("server error", {
+        return new Response(JSON.stringify({ message:"server error" }), {
           status: 500, headers: { 'Content-Type': 'application/json' },
         });
     }

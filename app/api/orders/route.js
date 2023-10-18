@@ -16,18 +16,6 @@ export async function POST(req) {
       //  partial_payment: bool (for emi)
     };
 
-    // const createOrder = () => {
-    //   return new Promise((resolve, reject) => {
-    //     rzp.orders.create(options, (err, order) => {
-    //       if (err) {
-    //         reject(err);
-    //       } else {
-    //         resolve(order);
-    //       }
-    //     });
-    //   });
-    // };
-    // const order = await createOrder();
     const order = await rzp.orders.create(options)
 
     return new Response(JSON.stringify(order), {
@@ -36,7 +24,7 @@ export async function POST(req) {
     
   } catch (error) {
     console.log("server side",error.message);
-    return new Response("server error", {
+    return new Response(JSON.stringify({ message:"server error" }), {
       status: 500, headers: { 'Content-Type': 'application/json' },
     });
   }

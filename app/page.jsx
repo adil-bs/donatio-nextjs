@@ -8,7 +8,7 @@ import { useState } from "react";
 
 export default function Home() {
   const [isClicked, setIsClicked] = useState(false)
-  const [amount, setAmount] = useState(undefined)
+  const [amount, setAmount] = useState('')
 
   const handleSubmit= async (e) =>{
     e.preventDefault()
@@ -16,7 +16,7 @@ export default function Home() {
     const resData = await fetchReq("/api/orders",{
       method:"POST",
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(amount),
+      body: JSON.stringify(amount.replace(/\s+/g,"")),
     })
     
     const loadRazorpayScript = await loadScript("https://checkout.razorpay.com/v1/checkout.js")
@@ -48,6 +48,18 @@ export default function Home() {
     rzp.open()
   }
 
+  const handleAmountChange = e =>{
+    let newAmount = e.target.value.replace(/\s+/g,"")
+
+    if ( newAmount.match(/^\d*$/)) {
+      for (let i = newAmount.length-3 ; i > 0; i -= 2) {
+        newAmount = newAmount.slice(0,i) + ' ' + newAmount.slice(i)      
+      }
+
+      setAmount(newAmount)  
+    }  
+  }
+
   return (
     <main className="px-7 flex flex-col justify-center items-center text-center h-full" >
 
@@ -72,20 +84,19 @@ export default function Home() {
 
       {isClicked &&
       <Dialog
-        className="px-10 py-7  bg-fuchsia-200"
+        className="px-16 py-7 bg-violet-200"
         onClose={() => setIsClicked(false)} 
         closable 
       >
-
+        <p className="text-2xl font-bold pb-5 px-9">One Step Closer</p>
         <form onSubmit={handleSubmit}>
           
           <FloatLabel
             label="Enter amount"
             inputProps={{
-              type:"number",
               value : amount,
-              onChange:(e)=> {setAmount(e.target.value)},
-              autoComplete:"off",
+              onChange: handleAmountChange,
+              autoComplete:"off"
             }}
           />  
           {/* <Link href={"/payment-options?amount="+amount} > */}
@@ -95,7 +106,7 @@ export default function Home() {
               violet_gradient_hover active:brightness-50  transition-all
               ${amount? ' clicked hover:scale-110 ' :' disabled:grayscale '} `}
             >
-              Pay
+              Donate
             </button>
           {/* </Link> */}
         
