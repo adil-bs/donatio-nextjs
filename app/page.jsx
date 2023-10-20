@@ -5,14 +5,23 @@ import Dialog from "/components/dialog";
 import FloatLabel from "/components/floatlabel";
 import Link from "next/link";
 import { useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const [isClicked, setIsClicked] = useState(false)
   const [amount, setAmount] = useState('')
-
+  const [isPaying, setIsPaying] = useState(false)
+  const [verifying,setVerifying] = useState(false)
+  const [errList,setErrList] = useState([
+    {id:0,err:false,msg:"Amount shouldn't exceed 1 lakh rupees"},
+    {id:1,err:true,msg:"Please donate minimum of 5 rupees"},
+  ])
   const handleSubmit= async (e) =>{
     e.preventDefault()
 
+    setIsPaying(true)
     const resData = await fetchReq("/api/orders",{
       method:"POST",
       headers: {'Content-Type': 'application/json'},
@@ -27,22 +36,27 @@ export default function Home() {
       currency: resData.currency,
       order_id: resData.id,
       name:"Donate to Greater Good",
+      image: "/donate.png",
 
       handler: async (res) => {
         try {
+          setVerifying(true)
           const paymentVerificationStatus = await fetchReq("/api/verify",{
             method:"POST",
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(res),
           })
-          console.log(paymentVerificationStatus);
+          router.push("/result?msg="+paymentVerificationStatus.message)
         } catch (error) {
           console.log(error);
+          router.push("/result?msg="+error.message)
+        } finally {
+          setVerifying(false)
         }
       },
 
-      theme: { color:"#5b21b6"}
-
+      theme: { color:"#5b21b6"},
+      modal : {ondismiss : () => setIsPaying(false) },
     })
 
     rzp.open()
@@ -52,6 +66,13 @@ export default function Home() {
     let newAmount = e.target.value.replace(/\s+/g,"")
 
     if ( newAmount.match(/^\d*$/)) {
+
+      const errConditions = [
+        parseFloat(newAmount || 0) > 100000,
+        parseFloat(newAmount || 0) < 5
+      ]
+      setErrList(prev => prev.map(ele => ( {...ele,err:errConditions[ele.id] } ) ))
+
       for (let i = newAmount.length-3 ; i > 0; i -= 2) {
         newAmount = newAmount.slice(0,i) + ' ' + newAmount.slice(i)      
       }
@@ -79,17 +100,17 @@ export default function Home() {
         href={isClicked ? "/options":""}
         onClick={()=>setIsClicked(true)}
       >
-        Donate To The Cause
+        Donate To The Cause 
       </button> 
 
-      {isClicked &&
       <Dialog
         className="px-16 py-7 bg-violet-200"
+        open = {isClicked}
         onClose={() => setIsClicked(false)} 
         closable 
       >
-        <p className="text-2xl font-bold pb-5 px-9">One Step Closer</p>
-        <form onSubmit={handleSubmit}>
+        <p className="text-2xl font-bold mb-10 px-9">One Step Closer</p>
+        <form onSubmit={handleSubmit} className=" bg-inherit">
           
           <FloatLabel
             label="Enter amount"
@@ -98,22 +119,33 @@ export default function Home() {
               onChange: handleAmountChange,
               autoComplete:"off"
             }}
+            errList={errList}
           />  
           {/* <Link href={"/payment-options?amount="+amount} > */}
             <button  
-              disabled={!amount}
-              className={`mt-5 py-1 px-3 text-white rounded-md violet_gradient relative  
-              violet_gradient_hover active:brightness-50  transition-all
-              ${amount? ' clicked hover:scale-110 ' :' disabled:grayscale '} `}
+              disabled={errList.some(ele => ele.err===true) || isPaying}
+              className={`inline-flex items-center mt-5 py-1 px-3 text-white rounded-md violet_gradient relative 
+              enabled:hover:scale-110 enabled:violet_gradient_hover active:brightness-50  transition-all disabled:grayscale `}
             >
-              Donate
+              {isPaying 
+                ? <Image src='/simpleLoader.gif' width={30} height={40} alt=""/> 
+                : "Donate"
+              }
             </button>
           {/* </Link> */}
         
         </form>  
-      
-      </Dialog> }     
-      
+
+      </Dialog> 
+
+      <Dialog 
+        className="h-[150vh] w-[150vw] grid content-center justify-items-center gap-4 bg-gradient-radial from-violet-500 " 
+        open={verifying}
+      >
+        <Image src={"/simpleLoader.gif"} height={70} width={70} alt=""/>
+        <p className="text-3xl font-bold">Verifying payment</p>
+      </Dialog>
+
     </main>
   )
 }
