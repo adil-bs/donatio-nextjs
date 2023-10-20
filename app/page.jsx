@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const router = useRouter();
   const [isClicked, setIsClicked] = useState(false)
-  const [amount, setAmount] = useState('')
+  const [userInput, setUserInput] = useState({name:"",email:"",amount:""})
   const [isPaying, setIsPaying] = useState(false)
   const [verifying,setVerifying] = useState(false)
   const [errList,setErrList] = useState([
@@ -25,7 +25,7 @@ export default function Home() {
     const resData = await fetchReq("/api/orders",{
       method:"POST",
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(amount.replace(/\s+/g,"")),
+      body: JSON.stringify(setUserInput.amount.replace(/\s+/g,"")),
     })
     
     const loadRazorpayScript = await loadScript("https://checkout.razorpay.com/v1/checkout.js")
@@ -82,7 +82,8 @@ export default function Home() {
   }
 
   return (
-    <main className="px-7 flex flex-col justify-center items-center text-center h-full" >
+    <main className="grid content-center text-center h-full bg-[url('/homeImage.jpg')] bg-cover bg-center">
+    <div className="grid justify-items-center p-7 backdrop-brightness-50 overflow-hidden">
 
       <p 
         className="text-5xl font-bold max-w-screen-lg
@@ -90,7 +91,7 @@ export default function Home() {
       >
         Sevice to others is the rent you pay for your room here on Earth
       </p>
-      <p className="my-5 ml-60 text-2xl"> 
+      <p className="my-5 ml-60 text-2xl text-white"> 
         -Mohammed Ali
       </p>
 
@@ -115,13 +116,12 @@ export default function Home() {
           <FloatLabel
             label="Enter amount"
             inputProps={{
-              value : amount,
+              value : setUserInput.amount,
               onChange: handleAmountChange,
               autoComplete:"off"
             }}
             errList={errList}
           />  
-          {/* <Link href={"/payment-options?amount="+amount} > */}
             <button  
               disabled={errList.some(ele => ele.err===true) || isPaying}
               className={`inline-flex items-center mt-5 py-1 px-3 text-white rounded-md violet_gradient relative 
@@ -132,11 +132,10 @@ export default function Home() {
                 : "Donate"
               }
             </button>
-          {/* </Link> */}
         
         </form>  
 
-      </Dialog> 
+      </Dialog>  
 
       <Dialog 
         className="h-[150vh] w-[150vw] grid content-center justify-items-center gap-4 bg-gradient-radial from-violet-500 " 
@@ -146,6 +145,7 @@ export default function Home() {
         <p className="text-3xl font-bold">Verifying payment</p>
       </Dialog>
 
+    </div>
     </main>
   )
 }

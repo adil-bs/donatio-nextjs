@@ -10,6 +10,7 @@ const Result = () => {
     const searchParams = useSearchParams()
     const [details,setDetails] = useState()
     const [isExpanded, setIsExpanded] = useState(false)
+    const [isCopied,setIsCopied] = useState(false)
 
     React.useEffect(()=>{
       if (searchParams.get("fail")) return
@@ -18,6 +19,20 @@ const Result = () => {
         .then(data => setDetails(data))
     },[])
 
+    function handleCopy() {
+      setIsCopied(true)
+      navigator.clipboard.writeText(details.id)
+      setTimeout( () => setIsCopied(false) ,3000)
+    }
+
+    let paymentTime = '' 
+    if (details) {
+      const date = new Date((details.created_at * 1000 ));
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      paymentTime = new Intl.DateTimeFormat('en-US', options).format(date);
+    }
+
+console.log(details );
     return (
     <main className='grid p-10 content-center justify-items-center h-screen'>
       
@@ -26,7 +41,7 @@ const Result = () => {
         <Image src={searchParams.get("fail")?"/redcross.png" :'/greentick.png'}  layout="fill" alt=''/>
       </div>
 
-      <div className='grid transition-all'>
+      <div className={`grid transition-all`}>
 
         <div className='flex justify-center'>
           <p  className={`text-3xl font-semibold ${searchParams.get("fail")?" text-red-500":""}`}> 
@@ -41,19 +56,33 @@ const Result = () => {
           > &lt;  </button>  
         </div>
 
-        {true && 
-        <div className={`mt-5 grid overflow-hidden transition-all ${isExpanded ? "h-0":"h-auto"}`}>
+        {isExpanded && 
+        <div className={`mt-5 grid transition-all`} >
           <hr className=' mb-3 bg-gradient-to-r from-red-400 via-purple-500 to-indigo-600 h-1'/>
 
           {details ? 
           <>
-            <Row 
-              theKey={"Payment ID"} 
-              value={details.id}
-            />
+            <div className='relative'>
+              <Row 
+                theKey={"Payment ID"} 
+                value={details.id}
+              />
+              <Image 
+                className='absolute w-auto right-0 top-1 cursor-pointer scale-150'
+                src={isCopied ?'/copied.png':'/copy.png'}
+                height={16}
+                width={16}
+                alt=''
+                onClick={handleCopy}
+              /> 
+            </div>
             <Row 
               theKey={"Donated Amount"} 
               value={toCurrency( details.amount/100,'en-IN',"INR" )}
+            />
+            <Row
+              theKey={"Time of payment"}
+              value={paymentTime}
             />
             <Row 
               theKey={"GST"} 
@@ -79,7 +108,6 @@ const Result = () => {
         href={'/'}
         className='mt-10 py-2 px-3 relative clicked text-white violet_gradient rounded-2xl transition-all
         hover:scale-110 violet_gradient_hover clicked active:brightness-50'
-        replace={true}
       > Go Back </Link>
     </main> 
   )
