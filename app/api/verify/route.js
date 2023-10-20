@@ -2,8 +2,8 @@ const crypto = require('crypto');
 export async function POST(req) {
     try {
         const {razorpay_order_id,razorpay_payment_id,razorpay_signature} = await req.json()
-        // const signature = razorpay_order_id + "|" + razorpay_payment_id
-        const signature = "678965" + "|" + razorpay_payment_id
+        const signature = razorpay_order_id + "|" + razorpay_payment_id
+        // const signature = "678965" + "|" + razorpay_payment_id
 
         const expectedSignature = crypto
           .createHmac("sha256",process.env.RZP_PRIVATE_KEY)

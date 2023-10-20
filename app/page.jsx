@@ -46,10 +46,10 @@ export default function Home() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(res),
           })
-          router.push("/result?msg="+paymentVerificationStatus.message)
+          router.push("/result?msg="+paymentVerificationStatus.message+"&id="+res.razorpay_payment_id)
         } catch (error) {
           console.log(error);
-          router.push("/result?msg="+error.message)
+          router.push("/result?msg="+error.message+"&fail=true")
         } finally {
           setVerifying(false)
         }

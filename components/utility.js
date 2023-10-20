@@ -22,3 +22,10 @@ export function loadScript(src) {
         script.onerror = () => ( rej(false) )
     })
 }
+
+export function toCurrency(amount,locale,currency){
+    return amount.toLocaleString(locale,{
+        style:"currency",
+        currency:currency,
+    })
+}
