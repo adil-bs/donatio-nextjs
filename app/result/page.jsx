@@ -54,7 +54,7 @@ const Result = () => {
           </p>
 
           <button 
-            className={`ml-4 px-2 pb-2 border border-black text-3xl text-gray-500 font-semibold rounded-full leading-[0] transition-all 
+            className={`ml-4 h-10 w-10 pb-2 border border-black text-3xl text-gray-500 font-semibold rounded-full transition-all 
             hover:shadow-black hover:shadow hover:bg-gray-700 active:text-white active:border-white ${isExpanded?"rotate-90":"-rotate-90" }`}
             onClick={() => setIsExpanded(prev => !prev)}
             hidden={searchParams.get("fail")}
@@ -62,7 +62,7 @@ const Result = () => {
         </div>
 
         {isExpanded && 
-        <div className={`mt-5 grid w-72 transition-all`} >
+        <div className={`mt-5 grid transition-all`} >
           <hr className=' mb-3 bg-gradient-to-r from-red-400 via-purple-500 to-indigo-600 h-1'/>
 
           {details ? 
