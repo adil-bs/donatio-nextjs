@@ -163,8 +163,8 @@ export default function Home() {
 
             <button  
               disabled={isFormError(errObject) || isPaying}
-              className={`inline-flex items-center mt-5 py-1 px-3 text-white rounded-md violet_gradient relative 
-              enabled:clicked enabled:hover:scale-110 enabled:violet_gradient_hover enabled:active:brightness-50  transition-all disabled:grayscale `}
+              className={`inline-flex items-center mt-5 py-1 px-3 text-white rounded-md violet_gradient 
+              enabled:hover:scale-110 enabled:violet_gradient_hover enabled:active:brightness-50 transition-all disabled:grayscale `}
             >
               {isPaying 
                 ? <Image src='/simpleLoader.gif' width={30} height={40} alt=""/> 
