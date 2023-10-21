@@ -31,8 +31,12 @@ export default function Home() {
     const resData = await fetchReq("/api/orders",{
       method:"POST",
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(userInput.amount.replace(/\s+/g,"")),
+      body: JSON.stringify({
+        ...userInput,
+        amount:userInput.amount.replace(/\s+/g,"")
+      }),
     })
+    console.log(resData);
     
     const loadRazorpayScript = await loadScript("https://checkout.razorpay.com/v1/checkout.js")
 
@@ -159,7 +163,7 @@ export default function Home() {
 
             <button  
               disabled={isFormError(errObject) || isPaying}
-              className={`inline-flex items-center mt-5 py-1 px-3 text-white rounded-md violet_gradient relative 
+              className={`inline-flex items-center mt-5 py-1 px-3 text-white rounded-md violet_gradient relative clicked
               enabled:hover:scale-110 enabled:violet_gradient_hover active:brightness-50  transition-all disabled:grayscale `}
             >
               {isPaying 

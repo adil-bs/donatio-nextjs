@@ -32,7 +32,6 @@ const Result = () => {
       paymentTime = new Intl.DateTimeFormat('en-US', options).format(date);
     }
 
-
     return (
     <main className="grid content-center h-screen overflow-hidden">
     <div className='grid justify-items-center p-10 backdrop-brightness-50'>
