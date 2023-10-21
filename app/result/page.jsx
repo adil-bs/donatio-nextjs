@@ -17,7 +17,7 @@ const Result = () => {
 
       fetchReq("/api/payments/"+searchParams.get("id"))
         .then(data => setDetails(data))
-    },[])
+    },[searchParams])
 
     function handleCopy() {
       setIsCopied(true)
