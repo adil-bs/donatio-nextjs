@@ -22,7 +22,7 @@ const Result = () => {
     function handleCopy() {
       setIsCopied(true)
       navigator.clipboard.writeText(details.id)
-      setTimeout( () => setIsCopied(false) ,3000)
+      setTimeout( () => setIsCopied(false) ,1500)
     }
 
     let paymentTime = '' 
@@ -32,16 +32,21 @@ const Result = () => {
       paymentTime = new Intl.DateTimeFormat('en-US', options).format(date);
     }
 
-console.log(details );
+
     return (
-    <main className='grid p-10 content-center justify-items-center h-screen'>
-      
+    <main className="grid content-center h-screen overflow-hidden">
+    <div className='grid justify-items-center p-10 backdrop-brightness-50'>
+
       <div className='relative h-24 w-24 mb-3'>
         <span className={`absolute bottom-5 right-5 h-14 w-14 animate-ping rounded-full ${searchParams.get("fail") ?" bg-red-700" :"bg-green-800"}`}/>
-        <Image src={searchParams.get("fail")?"/redcross.png" :'/greentick.png'}  layout="fill" alt=''/>
+        <Image 
+          src={searchParams.get("fail")?"/redcross.png" :'/greentick.png'}  
+          fill
+          alt=''
+        />
       </div>
 
-      <div className={`grid transition-all`}>
+      <div className={`grid transition-all text-white`}>
 
         <div className='flex justify-center'>
           <p  className={`text-3xl font-semibold ${searchParams.get("fail")?" text-red-500":""}`}> 
@@ -50,7 +55,7 @@ console.log(details );
 
           <button 
             className={`ml-4 px-2 pb-2 border border-black text-3xl text-gray-500 font-semibold rounded-full leading-[0] transition-all 
-            hover:shadow-black hover:shadow hover:bg-zinc-400 active:text-white active:border-white ${isExpanded?"rotate-90":"-rotate-90" }`}
+            hover:shadow-black hover:shadow hover:bg-gray-700 active:text-white active:border-white ${isExpanded?"rotate-90":"-rotate-90" }`}
             onClick={() => setIsExpanded(prev => !prev)}
             hidden={searchParams.get("fail")}
           > &lt;  </button>  
@@ -66,7 +71,7 @@ console.log(details );
               <Row 
                 theKey={"Payment ID"} 
                 value={details.id}
-              />
+                />
               <Image 
                 className='absolute w-auto right-0 top-1 cursor-pointer scale-150'
                 src={isCopied ?'/copied.png':'/copy.png'}
@@ -74,7 +79,7 @@ console.log(details );
                 width={16}
                 alt=''
                 onClick={handleCopy}
-              /> 
+                /> 
             </div>
             <Row 
               theKey={"Donated Amount"} 
@@ -83,15 +88,15 @@ console.log(details );
             <Row
               theKey={"Time of payment"}
               value={paymentTime}
-            />
+              />
             <Row 
               theKey={"GST"} 
               value={toCurrency( details.tax/100,'en-IN',"INR" )}
-            />
+              />
             <Row 
               theKey={"Fee (including GST) charged by Razorpay"} 
               value={toCurrency( details.tax/100,'en-IN',"INR" )}
-            />
+              />
           </>
           :
           <div className='my-5 grid content-center justify-items-center'>
@@ -109,6 +114,8 @@ console.log(details );
         className='mt-10 py-2 px-3 relative clicked text-white violet_gradient rounded-2xl transition-all
         hover:scale-110 violet_gradient_hover clicked active:brightness-50'
       > Go Back </Link>
+
+    </div>
     </main> 
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { fetchReq, loadScript } from "@/components/utility";
+import { fetchReq, isFormError, loadScript } from "@/components/utility";
 import Dialog from "/components/dialog";
 import FloatLabel from "/components/floatlabel";
 import Link from "next/link";
@@ -11,13 +11,20 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const router = useRouter();
   const [isClicked, setIsClicked] = useState(false)
-  const [userInput, setUserInput] = useState({name:"",email:"",amount:""})
+  const [userInput, setUserInput] = useState({Name:"",email:"",amount:""})
   const [isPaying, setIsPaying] = useState(false)
   const [verifying,setVerifying] = useState(false)
-  const [errList,setErrList] = useState([
-    {id:0,err:false,msg:"Amount shouldn't exceed 1 lakh rupees"},
-    {id:1,err:true,msg:"Please donate minimum of 5 rupees"},
-  ])
+  const [errObject,setErrObject] = useState({
+    Name: [ 
+      {id:0,err:false,msg:"Name shouldn't be less than 4 characters"}
+    ],
+    email:[],
+    amount : [
+      {id:0,err:false,msg:"Amount shouldn't exceed 1 lakh rupees"},
+      {id:1,err:true,msg:"Please donate minimum of 5 rupees"},
+    ]
+  })
+  
   const handleSubmit= async (e) =>{
     e.preventDefault()
 
@@ -25,7 +32,7 @@ export default function Home() {
     const resData = await fetchReq("/api/orders",{
       method:"POST",
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(setUserInput.amount.replace(/\s+/g,"")),
+      body: JSON.stringify(userInput.amount.replace(/\s+/g,"")),
     })
     
     const loadRazorpayScript = await loadScript("https://checkout.razorpay.com/v1/checkout.js")
@@ -62,28 +69,44 @@ export default function Home() {
     rzp.open()
   }
 
-  const handleAmountChange = e =>{
-    let newAmount = e.target.value.replace(/\s+/g,"")
+  const handleInputChange = e =>{
+    if (e.target.name === "amount") {
+      let newAmount = e.target.value.replace(/\s+/g,"")
+      
+      if ( newAmount.match(/^\d*$/)) {
 
-    if ( newAmount.match(/^\d*$/)) {
-
-      const errConditions = [
-        parseFloat(newAmount || 0) > 100000,
-        parseFloat(newAmount || 0) < 5
-      ]
-      setErrList(prev => prev.map(ele => ( {...ele,err:errConditions[ele.id] } ) ))
-
-      for (let i = newAmount.length-3 ; i > 0; i -= 2) {
-        newAmount = newAmount.slice(0,i) + ' ' + newAmount.slice(i)      
+        const errConditions = [
+          parseFloat(newAmount || 0) > 100000,
+          parseFloat(newAmount || 0) < 5
+        ]
+        setErrObject(prev => ({
+          ...prev,
+          amount : prev.amount.map(ele => ( {...ele,err:errConditions[ele.id] } ) )
+        }))
+        
+        for (let i = newAmount.length-3 ; i > 0; i -= 2) {
+          newAmount = newAmount.slice(0,i) + ' ' + newAmount.slice(i)      
+        }
+        
+        setUserInput(prev =>( {...prev, amount:newAmount}))  
       }
-
-      setAmount(newAmount)  
+      return
     }  
+    setUserInput(prev => ({...prev,[e.target.name] : e.target.value}))
+    if (e.target.name === "Name") {
+      const errConditions = [
+        e.target.value.length < 4,
+      ]
+      setErrObject(prev => ({
+        ...prev,
+        Name : prev.Name.map(ele => ( {...ele,err:errConditions[ele.id] } ) )
+      }))
+    }
   }
 
   return (
-    <main className="grid content-center text-center h-full bg-[url('/homeImage.jpg')] bg-cover bg-center">
-    <div className="grid justify-items-center p-7 backdrop-brightness-50 overflow-hidden">
+    <main className="grid content-center text-center h-full overflow-hidden">
+    <div className="grid justify-items-center p-7 backdrop-brightness-50">
 
       <p 
         className="text-5xl font-bold max-w-screen-lg
@@ -104,26 +127,38 @@ export default function Home() {
         Donate To The Cause 
       </button> 
 
+      </div>
+
       <Dialog
-        className="px-16 py-7 bg-violet-200"
+        className="px-16 py-7 bg-violet-200 w-4/5 md:w-[650px]"
         open = {isClicked}
         onClose={() => setIsClicked(false)} 
         closable 
       >
-        <p className="text-2xl font-bold mb-10 px-9">One Step Closer</p>
-        <form onSubmit={handleSubmit} className=" bg-inherit">
+        <p className="text-2xl font-bold mb-10 px-9">Let us know you</p>
+        <form onSubmit={handleSubmit} className=" bg-inherit space-y-5">
           
-          <FloatLabel
-            label="Enter amount"
-            inputProps={{
-              value : setUserInput.amount,
-              onChange: handleAmountChange,
-              autoComplete:"off"
-            }}
-            errList={errList}
-          />  
+          {["email","Name","amount"].map(ele => (
+
+            <FloatLabel
+              label={"Enter "+ele}
+              key = {ele}
+              id={ele}
+              inputProps={{
+                name : ele,
+                value : userInput[ele],
+                onChange: handleInputChange,
+                autoComplete:"off",
+                type:ele==="email" ? "email" : "text",
+                required: true
+              }}
+              errList={errObject[ele]}
+            />  
+          
+          ))}
+
             <button  
-              disabled={errList.some(ele => ele.err===true) || isPaying}
+              disabled={isFormError(errObject) || isPaying}
               className={`inline-flex items-center mt-5 py-1 px-3 text-white rounded-md violet_gradient relative 
               enabled:hover:scale-110 enabled:violet_gradient_hover active:brightness-50  transition-all disabled:grayscale `}
             >
@@ -143,9 +178,8 @@ export default function Home() {
       >
         <Image src={"/simpleLoader.gif"} height={70} width={70} alt=""/>
         <p className="text-3xl font-bold">Verifying payment</p>
-      </Dialog>
 
-    </div>
+      </Dialog>
     </main>
   )
 }

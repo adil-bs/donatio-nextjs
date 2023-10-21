@@ -4,7 +4,7 @@ const Dialog = ({children,open,onClose,closable,className}) => {
 
   return (
     <div 
-        className={`fixed inset-0 flex items-center justify-center backdrop-blur-sm transition-all ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 flex items-center justify-center backdrop-blur-md backdrop-filter transition-all ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={closable ? onClose : ()=>{}}
     >
         <div 

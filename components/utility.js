@@ -29,3 +29,15 @@ export function toCurrency(amount,locale,currency){
         currency:currency,
     })
 }
+
+export function isFormError(errObject) {
+    let error = false
+    const keysList = Object.keys(errObject)
+    keysList.forEach(ele => {
+        if (errObject[ele]?.some(ele => ele.err)) {
+            error = true
+            return
+        }
+    })
+    return error
+}
