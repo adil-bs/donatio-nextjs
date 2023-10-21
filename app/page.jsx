@@ -114,9 +114,10 @@ export default function Home() {
       >
         Sevice to others is the rent you pay for your room here on Earth
       </p>
-      <p className="my-5 ml-60 text-2xl text-white"> 
+      <p className="my-5 translate-x-[50%] text-2xl text-white"> 
         -Mohammed Ali
       </p>
+      
 
       <button
         className="relative mt-7 py-2 px-5 text-xl text-slate-50 violet_gradient rounded-2xl transition-all

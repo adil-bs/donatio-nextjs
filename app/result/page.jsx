@@ -101,7 +101,7 @@ const Result = () => {
           :
           <div className='my-5 grid content-center justify-items-center'>
             <Image src='/simpleLoader.gif' height={60} width={60} alt=''/>
-            <p className=' text-gray-500'>Fetching your payment details...</p>
+            <p className=' text-gray-300'>Fetching your payment details...</p>
           </div>
           }
         </div>}
