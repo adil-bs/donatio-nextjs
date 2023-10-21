@@ -51,7 +51,7 @@ export default function Home() {
           const paymentVerificationStatus = await fetchReq("/api/verify",{
             method:"POST",
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(res),
+            body: JSON.stringify({...res, order_id: resData.id}),
           })
           router.push("/result?msg="+paymentVerificationStatus.message+"&id="+res.razorpay_payment_id)
         } catch (error) {
