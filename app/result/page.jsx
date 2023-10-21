@@ -62,7 +62,7 @@ const Result = () => {
         </div>
 
         {isExpanded && 
-        <div className={`mt-5 grid transition-all`} >
+        <div className={`mt-5 grid w-72 transition-all`} >
           <hr className=' mb-3 bg-gradient-to-r from-red-400 via-purple-500 to-indigo-600 h-1'/>
 
           {details ? 
@@ -71,15 +71,15 @@ const Result = () => {
               <Row 
                 theKey={"Payment ID"} 
                 value={details.id}
-                />
+              />
               <Image 
-                className='absolute w-auto right-0 top-1 cursor-pointer scale-150'
+                className='absolute w-auto -left-6 top-1 cursor-pointer scale-150'
                 src={isCopied ?'/copied.png':'/copy.png'}
                 height={16}
                 width={16}
                 alt=''
                 onClick={handleCopy}
-                /> 
+              /> 
             </div>
             <Row 
               theKey={"Donated Amount"} 
