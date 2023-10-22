@@ -1,33 +1,50 @@
 'use client'
 
-import { fetchReq, isFormError, loadScript } from "@/components/utility";
 import Dialog from "/components/dialog";
-import FloatLabel from "/components/floatlabel";
-import { useState } from "react";
-import Image from "next/image";
+import { useReducer, useState } from "react";
+import PaymentForm from "@/components/paymentForm"; 
+import { fetchReq, loadScript } from "@/components/utility";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+
+const reduceErrObject = (state, action) => {
+  let {input,value} = action
+  if (input === "amount") {
+    value = parseFloat(value.replace(/\s+/g,""))
+  }
+  return ({
+    ...state,
+    [input] : state[input].map(ele => ({
+      ...ele,
+      err : ele.condition(value) 
+    }))
+  })  
+}
+const initialErrObject = {
+  Name: [ 
+    {id:0,err:false,msg:"Name shouldn't be less than 4 characters", condition : val => val.length < 4}
+  ],
+  email:[
+    {id:0,err:false,msg:"Enter a valid email", condition : val => ! val.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)}
+  ],
+  amount : [
+    {id:0,err:false,msg:"Amount shouldn't exceed 1 lakh rupees", condition : val => (val || 0) > 100000 },
+    {id:1,err:true,msg:"Please donate minimum of 5 rupees", condition : val => (val || 0) < 5},
+  ]
+}
 
 export default function Home() {
-  const router = useRouter();
   const [isClicked, setIsClicked] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter();
   const [userInput, setUserInput] = useState({Name:"",email:"",amount:""})
-  const [isPaying, setIsPaying] = useState(false)
   const [verifying,setVerifying] = useState(false)
-  const [errObject,setErrObject] = useState({
-    Name: [ 
-      {id:0,err:false,msg:"Name shouldn't be less than 4 characters"}
-    ],
-    email:[],
-    amount : [
-      {id:0,err:false,msg:"Amount shouldn't exceed 1 lakh rupees"},
-      {id:1,err:true,msg:"Please donate minimum of 5 rupees"},
-    ]
-  })
-  
-  const handleSubmit= async (e) =>{
+  const [errObject, dispatchErrObject] = useReducer(reduceErrObject, initialErrObject)
+
+  const handleSubmit = async (e) =>{
     e.preventDefault()
 
-    setIsPaying(true)
+    setIsSubmitting(true)
     const resData = await fetchReq("/api/orders",{
       method:"POST",
       headers: {'Content-Type': 'application/json'},
@@ -36,9 +53,8 @@ export default function Home() {
         amount:userInput.amount.replace(/\s+/g,"")
       }),
     })
-    console.log(resData);
     
-    const loadRazorpayScript = await loadScript("https://checkout.razorpay.com/v1/checkout.js")
+    await loadScript("https://checkout.razorpay.com/v1/checkout.js")
 
     const rzp = new Razorpay({
       key: process.env.NEXT_PUBLIC_RZP_KEY,
@@ -66,45 +82,25 @@ export default function Home() {
       },
 
       theme: { color:"#5b21b6"},
-      modal : {ondismiss : () => setIsPaying(false) },
+      modal : {ondismiss : () => setIsSubmitting(false) },
     })
-
     rzp.open()
   }
 
   const handleInputChange = e =>{
     if (e.target.name === "amount") {
       let newAmount = e.target.value.replace(/\s+/g,"")
-      
-      if ( newAmount.match(/^\d*$/)) {
+      if ( !newAmount.match(/^\d*$/)) return
 
-        const errConditions = [
-          parseFloat(newAmount || 0) > 100000,
-          parseFloat(newAmount || 0) < 5
-        ]
-        setErrObject(prev => ({
-          ...prev,
-          amount : prev.amount.map(ele => ( {...ele,err:errConditions[ele.id] } ) )
-        }))
-        
-        for (let i = newAmount.length-3 ; i > 0; i -= 2) {
-          newAmount = newAmount.slice(0,i) + ' ' + newAmount.slice(i)      
-        }
-        
-        setUserInput(prev =>( {...prev, amount:newAmount}))  
-      }
-      return
-    }  
-    setUserInput(prev => ({...prev,[e.target.name] : e.target.value}))
-    if (e.target.name === "Name") {
-      const errConditions = [
-        e.target.value.length < 4,
-      ]
-      setErrObject(prev => ({
-        ...prev,
-        Name : prev.Name.map(ele => ( {...ele,err:errConditions[ele.id] } ) )
-      }))
-    }
+      for (let i = newAmount.length-3 ; i > 0; i -= 2) {
+        newAmount = newAmount.slice(0,i) + ' ' + newAmount.slice(i)      
+      }      
+      setUserInput(prev =>( {...prev, amount:newAmount}))  
+    } else {
+      setUserInput(prev => ({...prev,[e.target.name] : e.target.value}))
+    } 
+
+    dispatchErrObject({input:e.target.name, value: e.target.value})
   }
 
   return (
@@ -140,50 +136,25 @@ export default function Home() {
         closable 
       >
         <p className="text-2xl font-bold mb-10 px-9">Let us know you</p>
-        <form onSubmit={handleSubmit} className=" bg-inherit space-y-5">
-          
-          {["email","Name","amount"].map(ele => (
+        <PaymentForm { ...{
+          userInput,
+          errObject,
+          handleInputChange,
+          isSubmitting,
+          handleSubmit,
+        }} />  
 
-            <FloatLabel
-              label={"Enter "+ele}
-              key = {ele}
-              id={ele}
-              inputProps={{
-                name : ele,
-                value : userInput[ele],
-                onChange: handleInputChange,
-                autoComplete:"off",
-                type:ele==="email" ? "email" : "text",
-                required: true
-              }}
-              errList={errObject[ele]}
-            />  
-          
-          ))}
+      </Dialog>
 
-            <button  
-              disabled={isFormError(errObject) || isPaying}
-              className={`inline-flex items-center mt-5 py-1 px-3 text-white rounded-md violet_gradient 
-              enabled:hover:scale-110 enabled:violet_gradient_hover enabled:active:brightness-50 transition-all disabled:grayscale `}
-            >
-              {isPaying 
-                ? <Image src='/simpleLoader.gif' width={30} height={40} alt=""/> 
-                : "Donate"
-              }
-            </button>
-        
-        </form>  
-
-      </Dialog>  
-
-      <Dialog 
+      <Dialog
         className="h-[150vh] w-[150vw] grid content-center justify-items-center gap-4 bg-gradient-radial from-violet-500 " 
         open={verifying}
       >
         <Image src={"/simpleLoader.gif"} height={70} width={70} alt=""/>
         <p className="text-3xl font-bold">Verifying payment</p>
-
       </Dialog>
+
     </main>
   )
 }
+

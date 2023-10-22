@@ -4,7 +4,7 @@ import React from 'react'
 const FloatLabel = ({label,inputProps,errList,id}) => {
   const {className,...mainInputProps} = inputProps
   return (
-    <div className='bg-inherit space-y-2'>
+    <div className='bg-inherit space-y-1'>
       <div className="relative bg-inherit">
         <input
           className={className+' h-12 peer w-full py-1 px-4 rounded-lg bg-transparent outline-2 outline outline-indigo-300 focus:outline-blue-800 focus:shadow-lg '}
