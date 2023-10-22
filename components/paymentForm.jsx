@@ -5,29 +5,42 @@ import { isFormError } from './utility'
 import Image from 'next/image'
 
 const PaymentForm = (props) => {
-    const {userInput,errObject,handleInputChange,isSubmitting,handleSubmit} = props
+    const {inputs,handleInputChange,isSubmitting,handleSubmit} = props
+    
+    const isFormError = inputs => {
+        let error = false
+        const keysList = Object.keys(inputs)
+        keysList.forEach(ele => {
+            if (inputs[ele].error?.some(ele => ele.err)) {
+                error = true
+                return
+            }
+        })
+        return error
+    }
+
   return (
     <form onSubmit={handleSubmit} className=" bg-inherit space-y-8">
           
-      {Object.keys(userInput).map(ele => (
+      {Object.keys(inputs).map(ele => (
         <FloatLabel
           label={"Enter "+ele}
           key = {ele}
           id={ele}
           inputProps={{
             name : ele,
-            value : userInput[ele],
+            value : inputs[ele].value,
             onChange: handleInputChange,
             type:ele==="email" ? "email" : "text",
             autoComplete:"off",
             required: true
           }}
-          errList={errObject[ele]}
+          errList={inputs[ele].error}
         />  
       ))}
 
         <button  
-          disabled={isFormError(errObject) || isSubmitting}
+          disabled={isFormError(inputs) || isSubmitting}
           className={`inline-flex items-center mt-5 py-1 px-3 text-white rounded-md violet_gradient 
           enabled:hover:scale-110 enabled:violet_gradient_hover enabled:active:brightness-50 transition-all disabled:grayscale `}
         >

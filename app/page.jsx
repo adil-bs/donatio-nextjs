@@ -3,55 +3,73 @@
 import Dialog from "/components/dialog";
 import { useReducer, useState } from "react";
 import PaymentForm from "@/components/paymentForm"; 
-import { fetchReq, loadScript } from "@/components/utility";
+import { fetchReq, indianCurrencyFormat, loadScript } from "@/components/utility";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-const reduceErrObject = (state, action) => {
+const reduceInputs = (state, action) => {
   let {input,value} = action
+  
   if (input === "amount") {
-    value = parseFloat(value.replace(/\s+/g,""))
+    value = parseFloat( value.replace(/[^0-9.]/g, '') )
   }
+
   return ({
     ...state,
-    [input] : state[input].map(ele => ({
-      ...ele,
-      err : ele.condition(value) 
-    }))
-  })  
+    [input] : {
+      ...state[input],
+      value : input === "amount"? indianCurrencyFormat(value) : value,
+      error : state[input].error.map(ele => ({
+        ...ele,
+        err : ele.condition(value) 
+      }))
+    }
+  })   
 }
-const initialErrObject = {
-  Name: [ 
-    {id:0,err:false,msg:"Name shouldn't be less than 4 characters", condition : val => val.length < 4}
-  ],
-  email:[
-    {id:0,err:false,msg:"Enter a valid email", condition : val => ! val.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)}
-  ],
-  amount : [
-    {id:0,err:false,msg:"Amount shouldn't exceed 1 lakh rupees", condition : val => (val || 0) > 100000 },
-    {id:1,err:true,msg:"Please donate minimum of 5 rupees", condition : val => (val || 0) < 5},
-  ]
+
+const initialInputs = {
+  Name: {
+    value : '',
+    error : [ 
+      {id:0,err:false,msg:"Name shouldn't be less than 4 characters", condition : val => val.length < 4}
+    ],
+  },
+  email:{
+    value : '',
+    error : [ 
+      {id:0,err:false,msg:"Enter a valid email", condition : val => ! val.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)}
+    ],
+  },
+  amount : {
+    value : '',
+    error : [ 
+      {id:0,err:false,msg:"Amount shouldn't exceed 1 lakh rupees", condition : val => (val || 0) > 100000 },
+      {id:1,err:true,msg:"Please donate minimum of 5 rupees", condition : val => (val || 0) < 5},
+    ],
+  }
 }
 
 export default function Home() {
+  const router = useRouter();
   const [isClicked, setIsClicked] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const router = useRouter();
-  const [userInput, setUserInput] = useState({Name:"",email:"",amount:""})
   const [verifying,setVerifying] = useState(false)
-  const [errObject, dispatchErrObject] = useReducer(reduceErrObject, initialErrObject)
-
+  const [inputs, dispatchInputs] = useReducer(reduceInputs, initialInputs)
   const handleSubmit = async (e) =>{
     e.preventDefault()
-
     setIsSubmitting(true)
+    
+    const inputsValues = Object.keys(inputs).reduce( (acc,key ) => {
+      acc[key] = key === "amount" 
+        ? inputs[key].value.replace(/\s+/g,"") 
+        : inputs[key].value
+      return acc 
+    },{})
+
     const resData = await fetchReq("/api/orders",{
       method:"POST",
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        ...userInput,
-        amount:userInput.amount.replace(/\s+/g,"")
-      }),
+      body: JSON.stringify(inputsValues),
     })
     
     await loadScript("https://checkout.razorpay.com/v1/checkout.js")
@@ -88,19 +106,7 @@ export default function Home() {
   }
 
   const handleInputChange = e =>{
-    if (e.target.name === "amount") {
-      let newAmount = e.target.value.replace(/\s+/g,"")
-      if ( !newAmount.match(/^\d*$/)) return
-
-      for (let i = newAmount.length-3 ; i > 0; i -= 2) {
-        newAmount = newAmount.slice(0,i) + ' ' + newAmount.slice(i)      
-      }      
-      setUserInput(prev =>( {...prev, amount:newAmount}))  
-    } else {
-      setUserInput(prev => ({...prev,[e.target.name] : e.target.value}))
-    } 
-
-    dispatchErrObject({input:e.target.name, value: e.target.value})
+    dispatchInputs({input:e.target.name, value: e.target.value})
   }
 
   return (
@@ -137,8 +143,7 @@ export default function Home() {
       >
         <p className="text-2xl font-bold mb-10 px-9">Let us know you</p>
         <PaymentForm { ...{
-          userInput,
-          errObject,
+          inputs,
           handleInputChange,
           isSubmitting,
           handleSubmit,

@@ -30,14 +30,10 @@ export function toCurrency(amount,locale,currency){
     })
 }
 
-export function isFormError(errObject) {
-    let error = false
-    const keysList = Object.keys(errObject)
-    keysList.forEach(ele => {
-        if (errObject[ele]?.some(ele => ele.err)) {
-            error = true
-            return
-        }
-    })
-    return error
+export function indianCurrencyFormat(amount) {
+    let currency = String(amount).replace(/[^0-9.]/g, '')
+    for (let i = currency.length-3 ; i > 0; i -= 2) {
+        currency = currency.slice(0,i) + ' ' + currency.slice(i)      
+    }
+    return currency
 }
