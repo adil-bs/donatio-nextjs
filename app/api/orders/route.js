@@ -43,7 +43,7 @@ export async function POST(req) {
     }
 
     const order = await rzp.orders.create(optionsForOrder)
-    const invoice = await rzp.invoices.create(optionsForInvoice)
+    await rzp.invoices.create(optionsForInvoice)
 
     return new Response(JSON.stringify(order), {
       status: 200, headers: { 'Content-Type': 'application/json' },

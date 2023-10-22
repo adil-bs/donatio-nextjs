@@ -1,7 +1,6 @@
 'use client'
 
 import FloatLabel from './floatlabel'
-import { isFormError } from './utility'
 import Image from 'next/image'
 
 const PaymentForm = (props) => {
@@ -24,14 +23,14 @@ const PaymentForm = (props) => {
           
       {Object.keys(inputs).map(ele => (
         <FloatLabel
-          label={"Enter "+ele}
+          label={inputs[ele].placeholder}
           key = {ele}
           id={ele}
           inputProps={{
             name : ele,
             value : inputs[ele].value,
+            type : inputs[ele].type,
             onChange: handleInputChange,
-            type:ele==="email" ? "email" : "text",
             autoComplete:"off",
             required: true
           }}

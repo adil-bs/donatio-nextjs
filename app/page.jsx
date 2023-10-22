@@ -3,58 +3,67 @@
 import Dialog from "/components/dialog";
 import { useReducer, useState } from "react";
 import PaymentForm from "@/components/paymentForm"; 
-import { fetchReq, indianCurrencyFormat, loadScript } from "@/components/utility";
+import { fetchReq, indianCurrencyFormat } from "@/components/utility";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import useRazorpay from "react-razorpay";
 
 const reduceInputs = (state, action) => {
   let {input,value} = action
   
-  if (input === "amount") {
-    value = parseFloat( value.replace(/[^0-9.]/g, '') )
+  if (input === "amount" || input === "number") {
+    value = parseFloat( value.replace(/[^0-9.]/g, '') ) || ''
   }
-
-  return ({
-    ...state,
-    [input] : {
-      ...state[input],
-      value : input === "amount"? indianCurrencyFormat(value) : value,
-      error : state[input].error.map(ele => ({
-        ...ele,
-        err : ele.condition(value) 
-      }))
-    }
-  })   
+  
+  let newState = {...state}
+  newState[input].value = input === "amount" ? indianCurrencyFormat(value) : value
+  newState[input].error = state[input].error.map(ele => {
+    ele.err = ele.condition(value)
+    return ele
+  })
+  return newState
 }
 
 const initialInputs = {
   Name: {
     value : '',
+    placeholder:'Enter your name',
     error : [ 
-      {id:0,err:false,msg:"Name shouldn't be less than 4 characters", condition : val => val.length < 4}
+      {err:false,msg:"Name shouldn't be less than 4 characters", condition : val => val.length < 4}
     ],
   },
   email:{
     value : '',
+    placeholder:'Enter your email address',
     error : [ 
-      {id:0,err:false,msg:"Enter a valid email", condition : val => ! val.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)}
+      {err:false,msg:"Enter a valid email", condition : val => ! val.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)}
+    ],
+  },
+  number : {
+    value : '',
+    placeholder:'Enter contact number',
+    error : [ 
+      {err:false,msg:"Enter a valid phone number", condition : val => String(val).length < 10}
     ],
   },
   amount : {
     value : '',
+    placeholder:'Enter amount',
     error : [ 
-      {id:0,err:false,msg:"Amount shouldn't exceed 1 lakh rupees", condition : val => (val || 0) > 100000 },
-      {id:1,err:true,msg:"Please donate minimum of 5 rupees", condition : val => (val || 0) < 5},
+      {err:false,msg:"Amount shouldn't exceed 1 lakh rupees", condition : val => (val || 0) > 100000 },
+      {err:true,msg:"Please donate minimum of 5 rupees", condition : val => (val || 0) < 5},
     ],
   }
 }
 
 export default function Home() {
+  const [Razorpay] = useRazorpay()
   const router = useRouter();
   const [isClicked, setIsClicked] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [verifying,setVerifying] = useState(false)
   const [inputs, dispatchInputs] = useReducer(reduceInputs, initialInputs)
+
   const handleSubmit = async (e) =>{
     e.preventDefault()
     setIsSubmitting(true)
@@ -72,14 +81,12 @@ export default function Home() {
       body: JSON.stringify(inputsValues),
     })
     
-    await loadScript("https://checkout.razorpay.com/v1/checkout.js")
-
     const rzp = new Razorpay({
       key: process.env.NEXT_PUBLIC_RZP_KEY,
       amount: resData.amount,
       currency: resData.currency,
       order_id: resData.id,
-      name:"Donate to Greater Good",
+      name:"Donation",
       image: "/donate.png",
 
       handler: async (res) => {
@@ -94,11 +101,13 @@ export default function Home() {
         } catch (error) {
           console.log(error);
           router.push("/result?msg="+error.message+"&fail=true")
-        } finally {
-          setVerifying(false)
-        }
+        } 
       },
-
+      prefill:{
+        name : inputs.Name.value,
+        email : inputs.email.value,
+        contact : inputs.number.value,
+      },
       theme: { color:"#5b21b6"},
       modal : {ondismiss : () => setIsSubmitting(false) },
     })

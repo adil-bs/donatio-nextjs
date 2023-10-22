@@ -7,7 +7,7 @@ const FloatLabel = ({label,inputProps,errList,id}) => {
     <div className='bg-inherit space-y-1'>
       <div className="relative bg-inherit">
         <input
-          className={className+' h-12 peer w-full py-1 px-4 rounded-lg bg-transparent outline-2 outline outline-indigo-300 focus:outline-blue-800 focus:shadow-lg '}
+          className={className+' h-12 peer w-full py-1 px-4 autofill:shadow-inner rounded-lg bg-transparent outline-2 outline outline-indigo-300 focus:outline-blue-800 focus:shadow-lg '}
           placeholder=' '
           id={id}
           {...mainInputProps}
@@ -22,7 +22,7 @@ const FloatLabel = ({label,inputProps,errList,id}) => {
 
       {errList?.map(ele => (ele.err ? 
 
-        <div key={ele.id} className='flex flex-row items-center text-left space-x-1' >
+        <div key={ele.msg} className='flex flex-row items-center text-left space-x-1' >
           <Image src='/caution.png' width={13} height={13} alt=""/>
           <p className='flex flex-wrap font-semibold text-red-600 text-sm'>{ele.msg}</p>  
         </div> 

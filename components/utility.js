@@ -13,16 +13,6 @@ export async function fetchReq(api, options = {method : 'GET'} ) {
     return data
 }
 
-export function loadScript(src) {
-    return new Promise ((res, rej) => {
-        const script = document.createElement("script")
-        script.src = src
-        document.body.appendChild(script)
-        script.onload  = () => ( res(true) )
-        script.onerror = () => ( rej(false) )
-    })
-}
-
 export function toCurrency(amount,locale,currency){
     return amount.toLocaleString(locale,{
         style:"currency",

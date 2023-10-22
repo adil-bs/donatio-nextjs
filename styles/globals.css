@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-*:not(input):focus{
-  outline: none;
+input:-webkit-autofill,input:-webkit-autofill:hover ,input:-webkit-autofill:focus, input:-webkit-autofill:active {
+  -webkit-background-clip: text;
 }
 @media (prefers-color-scheme: dark) {
   body {
