@@ -19,7 +19,7 @@ const PaymentForm = (props) => {
     }
 
   return (
-    <form onSubmit={handleSubmit} className=" bg-inherit space-y-8">
+    <form onSubmit={handleSubmit} className=" bg-inherit space-y-6 sm:space-y-8">
           
       {Object.keys(inputs).map(ele => (
         <FloatLabel

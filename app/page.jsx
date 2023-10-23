@@ -145,7 +145,7 @@ export default function Home() {
       </div>
 
       <Dialog
-        className="px-16 py-7 bg-violet-200 w-4/5 md:w-[650px]"
+        className="px-16 py-7 bg-violet-200 w-2/4 max-md:w-11/12 max-sm:px-7"
         open = {isClicked}
         onClose={() => setIsClicked(false)} 
         closable 
@@ -161,11 +161,11 @@ export default function Home() {
       </Dialog>
 
       <Dialog
-        className="h-[150vh] w-[150vw] grid content-center justify-items-center gap-4 bg-gradient-radial from-violet-500 " 
+        className="h-[150vh] w-[150vw] grid content-center justify-items-center gap-4 " 
         open={verifying}
       >
         <Image src={"/simpleLoader.gif"} height={70} width={70} alt=""/>
-        <p className="text-3xl font-bold">Verifying payment</p>
+        <p className="text-3xl text-slate-400 font-bold">Verifying payment</p>
       </Dialog>
 
     </main>
