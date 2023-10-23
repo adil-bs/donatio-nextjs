@@ -14,8 +14,8 @@ const FloatLabel = ({label,inputProps,errList,id}) => {
         />
         <label 
           htmlFor={id}
-          className='absolute font-serif sm:text-sm text-xs left-2 translate-y-[-52%] h-fit px-2 bg-inherit cursor-text text-black transition-all 
-          sm:peer-focus:text-sm peer-focus:text-xs peer-focus:text-black peer-focus:translate-y-[-52%] peer-focus:bottom-auto
+          className='absolute sm:text-sm text-xs left-2 translate-y-[-52%] h-fit px-2 bg-inherit cursor-text font-semibold text-indigo-600 transition-all 
+          sm:peer-focus:text-sm peer-focus:text-xs peer-focus:text-indigo-600 peer-focus:translate-y-[-52%] peer-focus:bottom-auto peer-focus:font-semibold
           sm:peer-placeholder-shown:text-lg peer-placeholder-shown:text-base peer-placeholder-shown:bottom-[50%] peer-placeholder-shown:translate-y-[50%] peer-placeholder-shown:text-slate-500 '
         >{label} </label>
       </div>

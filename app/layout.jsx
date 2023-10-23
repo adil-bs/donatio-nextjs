@@ -8,7 +8,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className=" bg-[url('/homeImage.jpg')] bg-cover bg-center">
+      <body className=" bg-[url('/homeImage.jpg')] bg-cover bg-fixed bg-center">
         {children}
       </body>
     </html>

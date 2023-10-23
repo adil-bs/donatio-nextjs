@@ -13,7 +13,7 @@ const Result = () => {
     const [isCopied,setIsCopied] = useState(false)
 
     React.useEffect(()=>{
-      if (searchParams.get("fail")) return
+      // if (searchParams.get("fail")) return
 
       fetchReq("/api/payments/"+searchParams.get("id"))
         .then(data => setDetails(data))
@@ -34,7 +34,7 @@ const Result = () => {
 
     return (
     <main className="grid content-center h-screen overflow-hidden">
-    <div className='grid justify-items-center p-10 backdrop-brightness-50'>
+    <div className='grid justify-items-center p-10 backdrop-brightness-50 transition-all'>
 
       <div className='relative h-24 w-24 mb-3'>
         <span className={`absolute bottom-5 right-5 h-14 w-14 animate-ping rounded-full ${searchParams.get("fail") ?" bg-red-700" :"bg-green-800"}`}/>
@@ -45,7 +45,7 @@ const Result = () => {
         />
       </div>
 
-      <div className={`grid transition-all text-white`}>
+      <div className={`grid text-white`}>
 
         <div className='flex justify-center'>
           <p  className={`text-3xl font-semibold ${searchParams.get("fail")?" text-red-500":""}`}> 
@@ -60,16 +60,15 @@ const Result = () => {
           > &lt;  </button>  
         </div>
 
-        {isExpanded && 
-        <div className={`mt-5 grid transition-all`} >
+        <div className={`mt-5 grid transition-all ${isExpanded ? "h-auto" :"h-0 hidden"}`} >
           <hr className=' mb-3 bg-gradient-to-r from-red-400 via-purple-500 to-indigo-600 h-1'/>
 
           {details ? 
-          <>
+          <div>
             <div className='relative'>
               <Row 
                 theKey={"Payment ID"} 
-                value={details.id}
+                value={details?.id}
               />
               <Image 
                 className='absolute w-auto -left-6 top-1 cursor-pointer scale-150'
@@ -82,7 +81,7 @@ const Result = () => {
             </div>
             <Row 
               theKey={"Donated Amount"} 
-              value={toCurrency( details.amount/100,'en-IN',"INR" )}
+              value={toCurrency( details?.amount/100,'en-IN',"INR" )}
             />
             <Row
               theKey={"Time of payment"}
@@ -90,20 +89,20 @@ const Result = () => {
               />
             <Row 
               theKey={"GST"} 
-              value={toCurrency( details.tax/100,'en-IN',"INR" )}
+              value={toCurrency( details?.tax/100,'en-IN',"INR" )}
               />
             <Row 
               theKey={"Fee (including GST) charged by Razorpay"} 
-              value={toCurrency( details.tax/100,'en-IN',"INR" )}
+              value={toCurrency( details?.tax/100,'en-IN',"INR" )}
               />
-          </>
+          </div>
           :
           <div className='my-5 grid content-center justify-items-center'>
             <Image src='/simpleLoader.gif' height={60} width={60} alt=''/>
             <p className=' text-gray-300'>Fetching your payment details...</p>
           </div>
           }
-        </div>}
+        </div>
 
 
       </div>

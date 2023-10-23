@@ -100,7 +100,7 @@ export default function Home() {
           router.push("/result?msg="+paymentVerificationStatus.message+"&id="+res.razorpay_payment_id)
         } catch (error) {
           console.log(error);
-          router.push("/result?msg="+error.message+"&fail=true")
+          router.push("/result?msg="+error.message+"&id="+res.razorpay_payment_id+"&fail=true")
         } 
       },
       prefill:{
@@ -145,7 +145,7 @@ export default function Home() {
       </div>
 
       <Dialog
-        className="px-16 py-7 bg-violet-200 w-2/4 max-md:w-11/12 max-sm:px-7"
+        className="px-16 py-7 bg-violet-200 w-1/2 max-md:w-11/12 max-sm:px-7"
         open = {isClicked}
         onClose={() => setIsClicked(false)} 
         closable 
